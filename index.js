@@ -9,13 +9,25 @@
   };
   firebase.initializeApp(Config);
   var mytime;
-  var start_time="";
-  var end_time="";
   var StartTime;
   var EndTime;
   var ElapsedTime;
-  //localStorage.setItem("counter",0);
+  var counter=0;
   document.getElementById("button1").disabled=false;
+  document.getElementById("button2").disabled=true;
+  document.getElementById("label1").innerHTML="";
+  function count_records(ref,time)
+  {
+    ref.once("value").then(function(snapshot)
+    {
+        var key=snapshot.key;
+        if(counter!=null)
+        counter=snapshot.val().length;
+        else
+        counter=1;
+      firebase.database().ref("Timers/"+counter).set(time);
+    });
+  }
 function start()
 {  
     var time={
@@ -25,15 +37,20 @@ function start()
     }
     localStorage.setItem("start",time.StartTime);
     document.getElementById("button1").disabled=true;
+    document.getElementById("button2").disabled=false;
     document.getElementById("label1").innerHTML=time.StartTime;
-    document.getElementById("label2").innerHTML=time.EndTime;
-    document.getElementById("label3").innerHTML=time.ElapsedTime;
-    firebase.database().ref("Timers/"+time.StartTime).set(time);
-    mytime=setInterval(function(){ timer(time.StartTime)},120000); 
+    document.getElementById("label2").innerHTML="";
+    document.getElementById("label3").innerHTML=""; 
+    var ref=firebase.database().ref("Timers").orderByKey();
+    count_records(ref,time);
+    //firebase.database().ref("Timers/"+counter).set(time);
+    mytime=setInterval(function(){ timer(time.StartTime)},10000); 
 }
 function stop()
 {
     clearInterval(mytime);
+    document.getElementById("button2").disabled=true;
+    document.getElementById("button1").disabled=false;
     endtime=(new Date()).toLocaleTimeString();
     document.getElementById("label2").innerHTML=endtime;
     var time={
@@ -41,8 +58,13 @@ function stop()
         EndTime:endtime,
         ElapsedTime:localStorage.getItem("elapsed"),
         }
-        firebase.database().ref("Timers/"+time.StartTime).set(time);
-        document.getElementById("button1").disabled=false;        
+        var ref=firebase.database().ref("Timers");
+        //count=count_records(ref);
+        //count=count+1;
+        firebase.database().ref("Timers/"+counter).set(time);
+        document.getElementById("label2").innerHTML=time.EndTime;
+        document.getElementById("button1").disabled=false;  
+     
 }
 function timer(start)
 {
@@ -52,7 +74,10 @@ function timer(start)
         ElapsedTime:(new Date()).toLocaleTimeString()
     }
     document.getElementById("label3").innerHTML=time.ElapsedTime;
-    firebase.database().ref("Timers/"+time.StartTime).set(time);
+    var ref=firebase.database().ref("Timers");
+    //count=count_records(ref);
+    //count=count+1;
+    firebase.database().ref("Timers/"+counter).set(time);
     localStorage.setItem("start",time.StartTime);
     localStorage.setItem("elapsed",time.ElapsedTime);
 }
