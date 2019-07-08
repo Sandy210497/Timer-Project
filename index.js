@@ -41,10 +41,9 @@ function start()
     document.getElementById("label1").innerHTML=time.StartTime;
     document.getElementById("label2").innerHTML="";
     document.getElementById("label3").innerHTML=""; 
-    var ref=firebase.database().ref("Timers").orderByKey();
+    var ref=firebase.database().ref("Timers");
     count_records(ref,time);
-    //firebase.database().ref("Timers/"+counter).set(time);
-    mytime=setInterval(function(){ timer(time.StartTime)},10000); 
+    mytime=setInterval(function(){ timer(time.StartTime)},120000); 
 }
 function stop()
 {
@@ -58,9 +57,6 @@ function stop()
         EndTime:endtime,
         ElapsedTime:localStorage.getItem("elapsed"),
         }
-        var ref=firebase.database().ref("Timers");
-        //count=count_records(ref);
-        //count=count+1;
         firebase.database().ref("Timers/"+counter).set(time);
         document.getElementById("label2").innerHTML=time.EndTime;
         document.getElementById("button1").disabled=false;  
@@ -74,9 +70,6 @@ function timer(start)
         ElapsedTime:(new Date()).toLocaleTimeString()
     }
     document.getElementById("label3").innerHTML=time.ElapsedTime;
-    var ref=firebase.database().ref("Timers");
-    //count=count_records(ref);
-    //count=count+1;
     firebase.database().ref("Timers/"+counter).set(time);
     localStorage.setItem("start",time.StartTime);
     localStorage.setItem("elapsed",time.ElapsedTime);
